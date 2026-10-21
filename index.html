@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misteri Box Pahlawan Nasional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Bungee&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            amber: '#f59e0b',
+                            red: '#e11d48',
+                            blue: '#2563eb',
+                            gold: '#fbbf24',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        display: ['Bungee', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Keyframe Animations & Game Styles */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.8); }
+        }
+        @keyframes box-shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-5px) rotate(-3deg); }
+            40% { transform: translateX(5px) rotate(3deg); }
+            60% { transform: translateX(-5px) rotate(-3deg); }
+            80% { transform: translateX(5px) rotate(3deg); }
+        }
+        .float-anim { animation: float 4s ease-in-out infinite; }
+        .box-glow { animation: pulse-glow 2s infinite; }
+        .box-shake { animation: box-shake 0.4s ease-in-out; }
+        
+        /* Box 3D Effect */
+        .mystery-box-card {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .mystery-box-card:hover {
+            transform: translateY(-6px) scale(1.03);
+        }
+        
+        /* Modal Backdrop */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900 overflow-x-hidden">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="gameApp.showHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-red-500 flex items-center justify-center text-slate-950 text-xl font-bold shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg sm:text-xl text-amber-400 leading-tight tracking-wider">MISTERI BOX</h1>
+                    <p class="text-xs text-slate-400 font-medium hidden sm:block">Sejarah Pahlawan Nasional Indonesia</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar (Visible during play) -->
+            <div id="topStatsBar" class="hidden items-center space-x-4 bg-slate-800/80 px-4 py-1.5 rounded-full border border-slate-700">
+                <div class="flex items-center space-x-1.5 text-amber-400">
+                    <i class="fa-solid fa-star text-sm"></i>
+                    <span id="statScore" class="font-bold text-sm">0</span>
+                </div>
+                <div class="h-4 w-[1px] bg-slate-700"></div>
+                <div class="flex items-center space-x-1.5 text-emerald-400">
+                    <i class="fa-solid fa-check-circle text-sm"></i>
+                    <span id="statAnswered" class="font-bold text-sm">0/30</span>
+                </div>
+                <div class="h-4 w-[1px] bg-slate-700"></div>
+                <div class="flex items-center space-x-1.5 text-orange-400">
+                    <i class="fa-solid fa-fire text-sm"></i>
+                    <span id="statStreak" class="font-bold text-sm">0</span>
+                </div>
+            </div>
+
+            <!-- Nav Action Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="gameApp.toggleAudio()" id="audioBtn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Beralih Suara">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+                <button onclick="gameApp.showStudyMode()" class="px-3 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-book-open text-amber-400"></i>
+                    <span class="hidden sm:inline">Daftar Soal</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+        
+        <!-- SECTION 1: HOME / LANDING SCREEN -->
+        <section id="screenHome" class="space-y-8 py-4">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-600 via-red-600 to-indigo-900 p-8 sm:p-12 text-white shadow-2xl">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-block px-3 py-1 bg-amber-400/20 backdrop-blur text-amber-200 border border-amber-300/30 rounded-full text-xs font-semibold tracking-wide uppercase mb-4">
+                        Kuis Interaktif Sejarah
+                    </span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold tracking-wide mb-4 leading-tight">
+                        TAKLUKKAN MISTERI BOX PAHLAWAN!
+                    </h2>
+                    <p class="text-slate-100 text-sm sm:text-base mb-8 leading-relaxed">
+                        Buka 30 Kotak Misteri berisi pertanyaan seputar perjuangan Sultan Hasanuddin, Pattimura, Tuanku Imam Bonjol, Pangeran Diponegoro, dan Teuku Umar. Uji pengetahuan sejarahmu sekarang!
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="gameApp.startMysteryMode()" class="px-8 py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 transform hover:-translate-y-1 transition-all flex items-center space-x-3 text-lg">
+                            <i class="fa-solid fa-play"></i>
+                            <span>MAIN MISTERI BOX</span>
+                        </button>
+                        <button onclick="gameApp.showCategorySelect()" class="px-6 py-4 bg-slate-900/60 hover:bg-slate-900 text-white font-bold rounded-2xl border border-white/20 backdrop-blur hover:border-amber-400/50 transition-all flex items-center space-x-2 text-base">
+                            <i class="fa-solid fa-list-check text-amber-400"></i>
+                            <span>Pilih Kategori</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Decorative Background Graphic -->
+                <div class="absolute right-4 bottom-0 opacity-20 lg:opacity-30 pointer-events-none float-anim hidden sm:block">
+                    <i class="fa-solid fa-box-archive text-[220px] text-amber-200"></i>
+                </div>
+            </div>
+
+            <!-- Categories Grid Preview -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-slate-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-layer-group text-amber-400"></i>
+                    <span>5 Kategori Pahlawan</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Cat 1 -->
+                    <div onclick="gameApp.startCategoryMode('hasanuddin')" class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-3 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 group-hover:text-amber-400 transition-colors">Sultan Hasanuddin</h4>
+                        <p class="text-xs text-slate-400 mt-1">Ayam Jantan dari Timur (6 Soal)</p>
+                    </div>
+                    <!-- Cat 2 -->
+                    <div onclick="gameApp.startCategoryMode('pattimura')" class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-3 group-hover:bg-blue-500 group-hover:text-slate-950 transition-all">
+                            <i class="fa-solid fa-anchor"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 group-hover:text-blue-400 transition-colors">Kapitan Pattimura</h4>
+                        <p class="text-xs text-slate-400 mt-1">Pahlawan Maluku (6 Soal)</p>
+                    </div>
+                    <!-- Cat 3 -->
+                    <div onclick="gameApp.startCategoryMode('bonjol')" class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-3 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all">
+                            <i class="fa-solid fa-mountain"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">Tuanku Imam Bonjol</h4>
+                        <p class="text-xs text-slate-400 mt-1">Perang Paderi (6 Soal)</p>
+                    </div>
+                    <!-- Cat 4 -->
+                    <div onclick="gameApp.startCategoryMode('diponegoro')" class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-3 group-hover:bg-purple-500 group-hover:text-slate-950 transition-all">
+                            <i class="fa-solid fa-horse"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 group-hover:text-purple-400 transition-colors">Pangeran Diponegoro</h4>
+                        <p class="text-xs text-slate-400 mt-1">Perang Jawa (6 Soal)</p>
+                    </div>
+                    <!-- Cat 5 -->
+                    <div onclick="gameApp.startCategoryMode('umar')" class="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-rose-500/50 cursor-pointer transition-all hover:-translate-y-1 group">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-3 group-hover:bg-rose-500 group-hover:text-slate-950 transition-all">
+                            <i class="fa-solid fa-person-rifle"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-100 group-hover:text-rose-400 transition-colors">Teuku Umar</h4>
+                        <p class="text-xs text-slate-400 mt-1">Pejuang Aceh (6 Soal)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: MYSTERY BOX GRID GAME SCREEN -->
+        <section id="screenMysteryGrid" class="hidden space-y-6">
+            <!-- Mode Top Info -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-cubes text-xl"></i>
+                        <span id="gridTitle">Pilih Misteri Box</span>
+                    </h2>
+                    <p id="gridSubtitle" class="text-xs sm:text-sm text-slate-400">Klik salah satu kotak misteri di bawah untuk membocorkan soal sejarah!</p>
+                </div>
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                    <button onclick="gameApp.resetCurrentGame()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition-colors flex items-center space-x-1.5">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reset Game</span>
+                    </button>
+                    <button onclick="gameApp.showHome()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition-colors">
+                        Kembali
+                    </button>
+                </div>
+            </div>
+
+            <!-- Box Grid Container -->
+            <div id="boxGridContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                <!-- Boxes dynamically injected here -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: STUDY MODE / ALL QUESTIONS LIST -->
+        <section id="screenStudyMode" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-book-open text-xl"></i>
+                        <span>Daftar Soal & Kunci Jawaban</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400">Pelajari seluruh 30 soal materi pahlawan nasional lengkap dengan kunci jawaban.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="gameApp.showHome()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition-colors">
+                        Kembali ke Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-sm"></i>
+                    <input type="text" id="studySearchInput" onkeyup="gameApp.filterStudyList()" placeholder="Cari soal atau kata kunci..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <select id="studyCategoryFilter" onchange="gameApp.filterStudyList()" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500 transition-colors">
+                    <option value="all">Semua Pahlawan (30 Soal)</option>
+                    <option value="hasanuddin">I. Sultan Hasanuddin</option>
+                    <option value="pattimura">II. Kapitan Pattimura</option>
+                    <option value="bonjol">III. Tuanku Imam Bonjol</option>
+                    <option value="diponegoro">IV. Pangeran Diponegoro</option>
+                    <option value="umar">V. Teuku Umar</option>
+                </select>
+            </div>
+
+            <!-- List Container -->
+            <div id="studyListContainer" class="space-y-4">
+                <!-- Injected questions -->
+            </div>
+        </section>
+
+        <!-- SECTION 4: GAME OVER / RESULT SCREEN -->
+        <section id="screenResult" class="hidden max-w-2xl mx-auto py-8 text-center space-y-6">
+            <div class="p-8 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden">
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-amber-500/10 border-2 border-amber-500/30 flex items-center justify-center text-amber-400 text-5xl mb-6 box-glow">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <h2 class="text-3xl font-extrabold text-slate-100 mb-2">Permainan Selesai!</h2>
+                <p id="resultFeedback" class="text-slate-400 text-sm mb-6">Luar biasa! Kamu telah menyelesaikan kuis Misteri Box Pahlawan.</p>
+
+                <!-- Score Grid -->
+                <div class="grid grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800/80 mb-8">
+                    <div>
+                        <p class="text-xs text-slate-500">Skor Total</p>
+                        <p id="finalScore" class="text-2xl font-black text-amber-400">0</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">Akurasi</p>
+                        <p id="finalAccuracy" class="text-2xl font-black text-emerald-400">0%</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">Max Streak</p>
+                        <p id="finalStreak" class="text-2xl font-black text-orange-400">0</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="gameApp.startMysteryMode()" class="px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Main Lagi</span>
+                    </button>
+                    <button onclick="gameApp.showHome()" class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition-all">
+                        Menu Utama
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QUESTION MODAL DIALOG -->
+    <div id="questionModal" class="fixed inset-0 z-50 glass-panel hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative transform transition-all scale-95 opacity-0 duration-300" id="modalCard">
+            <!-- Header Badges -->
+            <div class="flex items-center justify-between mb-4">
+                <span id="modalCategoryBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    Sultan Hasanuddin
+                </span>
+                <span id="modalBoxNumber" class="text-xs font-semibold text-slate-400 flex items-center space-x-1">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Kotak #1</span>
+                </span>
+            </div>
+
+            <!-- Question Text -->
+            <h3 id="modalQuestionText" class="text-lg sm:text-xl font-bold text-slate-100 mb-6 leading-relaxed">
+                Di manakah Sultan Hasanuddin dilahirkan pada tahun 1631?
+            </h3>
+
+            <!-- Options Grid -->
+            <div id="modalOptionsGrid" class="space-y-3 mb-6">
+                <!-- Injected Options -->
+            </div>
+
+            <!-- Answer Feedback & Explanation Box -->
+            <div id="modalFeedbackBox" class="hidden p-4 rounded-2xl mb-6 text-sm">
+                <div class="flex items-center space-x-2 font-bold mb-1" id="feedbackHeader">
+                    <i id="feedbackIcon" class="fa-solid"></i>
+                    <span id="feedbackTitle">Jawaban Benar!</span>
+                </div>
+                <p id="feedbackExplanation" class="text-xs leading-relaxed text-slate-300"></p>
+            </div>
+
+            <!-- Next / Continue Button -->
+            <div class="flex justify-end">
+                <button id="modalNextBtn" onclick="gameApp.closeQuestionModal()" class="hidden px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl transition-all flex items-center space-x-2">
+                    <span>Lanjutkan</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900/50 border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>© 2026 Game Misteri Box Sejarah Indonesia</p>
+            <p class="flex items-center space-x-1">
+                <span>Dibuat untuk Pembelajaran Interaktif</span>
+                <i class="fa-solid fa-heart text-red-500 text-xs"></i>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. DATA BANK (30 QUESTION DATABASE WITH EXPLANATIONS)
+           ========================================================================== */
+        const QUESTION_BANK = [
+            // I. Sultan Hasanuddin (1-6)
+            {
+                id: 1,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Di manakah Sultan Hasanuddin dilahirkan pada tahun 1631?',
+                options: ['a. Ambon', 'b. Ujung Pandang', 'c. Yogyakarta', 'd. Meulaboh'],
+                correctIndex: 1, // b
+                explanation: 'Sultan Hasanuddin lahir di Ujung Pandang (sekarang Makassar) pada tanggal 12 Januari 1631.'
+            },
+            {
+                id: 2,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Sultan Hasanuddin merupakan putera kedua dari raja Gowa ke-15 yang bernama...',
+                options: ['a. Sultan Malikusaid', 'b. Cornelis Speelman', 'c. Pangeran Diponegoro', 'd. Peto Syarif'],
+                correctIndex: 0, // a
+                explanation: 'Sultan Hasanuddin adalah putra dari Raja Gowa ke-15, Sultan Malikusaid.'
+            },
+            {
+                id: 3,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Siapakah pemimpin Belanda yang berusaha menundukkan kerajaan-kerajaan kecil pada tahun 1666?',
+                options: ['a. Mayor Beetjes', 'b. Van Heutz', 'c. Cornelis Speelman', 'd. Sentot Alibasah'],
+                correctIndex: 2, // c
+                explanation: 'Cornelis Speelman memimpin ekspedisi VOC Belanda untuk menundukkan kerajaan-kerajaan di wilayah timur.'
+            },
+            {
+                id: 4,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Perjanjian perdamaian yang disetujui oleh Gowa pada tanggal 18 November 1667 adalah...',
+                options: ['a. Perjanjian Masang', 'b. Perjanjian Bongaya', 'c. Perjanjian Magelang', 'd. Perjanjian Batavia'],
+                correctIndex: 1, // b
+                explanation: 'Perjanjian Bongaya ditandatangani pada 18 November 1667 antara Sultan Hasanuddin dan VOC.'
+            },
+            {
+                id: 5,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Benteng terkuat Gowa yang berhasil diterobos Belanda pada tanggal 12 Juni 1669 adalah...',
+                options: ['a. Benteng Duurstede', 'b. Benteng Hoorn', 'c. Benteng Somba Opu', 'd. Benteng Selarong'],
+                correctIndex: 2, // c
+                explanation: 'Benteng Somba Opu merupakan benteng pertahanan utama Kerajaan Gowa yang jatuh pada 12 Juni 1669.'
+            },
+            {
+                id: 6,
+                categoryKey: 'hasanuddin',
+                categoryName: 'Sultan Hasanuddin',
+                question: 'Sultan Hasanuddin mengundurkan diri dan wafat pada tanggal...',
+                options: ['a. 12 Juni 1670', 'b. 18 November 1667', 'c. 16 Desember 1817', 'd. 8 Januari 1855'],
+                correctIndex: 0, // a
+                explanation: 'Sultan Hasanuddin wafat pada tanggal 12 Juni 1670 pada usia 39 tahun.'
+            },
+
+            // II. Kapitan Pattimura (7-12)
+            {
+                id: 7,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Siapakah nama asli dari Kapitan Pattimura?',
+                options: ['a. Peto Syarif', 'b. Thomas Matulessy', 'c. Raden Mas Ontowiryo', 'd. Teuku Umar'],
+                correctIndex: 1, // b
+                explanation: 'Nama asli Kapitan Pattimura adalah Thomas Matulessy.'
+            },
+            {
+                id: 8,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Di manakah Kapitan Pattimura dilahirkan pada tahun 1783?',
+                options: ['a. Ambon', 'b. Meulaboh', 'c. Pasaman', 'd. Yogyakarta'],
+                correctIndex: 0, // a
+                explanation: 'Kapitan Pattimura lahir di Saparua, Ambon/Maluku pada 8 Juni 1783.'
+            },
+            {
+                id: 9,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Perlawanan pertama rakyat Maluku di bawah pimpinan Pattimura meletus pada tanggal...',
+                options: ['a. 14 Mei 1817', 'b. 20 Juli 1825', 'c. 29 Maret 1896', 'd. 16 Agustus 1837'],
+                correctIndex: 0, // a
+                explanation: 'Perlawanan meletus pada 14 Mei 1817 dengan penyerangan terhadap benteng Belanda.'
+            },
+            {
+                id: 10,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Siapakah Gubernur Belanda di Ambon yang memerintahkan untuk merebut kembali benteng dari tangan Pattimura?',
+                options: ['a. Van Heutz', 'b. Mayor Beetjes', 'c. Cornelis Speelman', 'd. Kyai Mojo'],
+                correctIndex: 1, // b
+                explanation: 'Mayor Beetjes dikirim untuk memimpin ekspedisi merebut kembali Benteng Duurstede.'
+            },
+            {
+                id: 11,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Benteng di Maluku yang berhasil direbut oleh barisan Pattimura adalah...',
+                options: ['a. Benteng Duurstede', 'b. Benteng Hoorn', 'c. Benteng Somba Opu', 'd. Benteng Bonjol'],
+                correctIndex: 1, // b
+                explanation: 'Selain Benteng Duurstede, pertahanan Benteng Hoorn juga menjadi sasaran perjuangan rakyat Maluku.'
+            },
+            {
+                id: 12,
+                categoryKey: 'pattimura',
+                categoryName: 'Kapitan Pattimura',
+                question: 'Tempat di mana Kapitan Pattimura ditangkap oleh pihak Belanda sebelum dibawa ke Ambon adalah...',
+                options: ['a. Tegalrejo', 'b. Siri Sori', 'c. Meulaboh', 'd. Cianjur'],
+                correctIndex: 1, // b
+                explanation: 'Kapitan Pattimura ditangkap oleh Belanda di Siri Sori akibat pengkhianatan.'
+            },
+
+            // III. Tuanku Imam Bonjol (13-18)
+            {
+                id: 13,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Nama asli dari Tuanku Imam Bonjol adalah...',
+                options: ['a. Thomas Matulessy', 'b. Peto Syarif', 'c. Raden Mas Ontowiryo', 'd. Teuku Umar'],
+                correctIndex: 1, // b
+                explanation: 'Nama asli Tuanku Imam Bonjol adalah Peto Syarif (Muhammad Shahab).'
+            },
+            {
+                id: 14,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Di manakah Tuanku Imam Bonjol dilahirkan pada tahun 1772?',
+                options: ['a. Kampung Tanjung Bunga, Pasaman', 'b. Kampung Darat, Meulaboh', 'c. Tegalrejo, Yogyakarta', 'd. Ujung Pandang'],
+                correctIndex: 0, // a
+                explanation: 'Tuanku Imam Bonjol lahir di Kampung Tanjung Bunga, Pasaman, Sumatera Barat pada tahun 1772.'
+            },
+            {
+                id: 15,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Perjanjian antara Belanda dan kaum Paderi pada tahun 1824 yang kemudian dilanggar sendiri oleh pihak Belanda adalah...',
+                options: ['a. Perjanjian Bongaya', 'b. Perjanjian Masang', 'c. Perjanjian Magelang', 'd. Perjanjian Ambon'],
+                correctIndex: 1, // b
+                explanation: 'Perjanjian Masang disepakati pada tahun 1824 namun dilanggar oleh pihak Belanda.'
+            },
+            {
+                id: 16,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Pada tanggal berapa benteng Bonjol berhasil diserbu Belanda setelah dikepung berulangkali selama 3 tahun?',
+                options: ['a. 16 Agustus 1837', 'b. 20 Juli 1825', 'c. 14 Mei 1817', 'd. 29 Maret 1896'],
+                correctIndex: 0, // a
+                explanation: 'Benteng Bonjol berhasil jatuh ke tangan Belanda pada 16 Agustus 1837.'
+            },
+            {
+                id: 17,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Tempat pengasingan pertama Tuanku Imam Bonjol setelah ditangkap akibat pengkhianatan Belanda adalah...',
+                options: ['a. Ambon', 'b. Manado', 'c. Cianjur', 'd. Ujung Pandang'],
+                correctIndex: 2, // c
+                explanation: 'Setelah ditangkap melalui perundingan licik, beliau diasingkan pertama kali ke Cianjur.'
+            },
+            {
+                id: 18,
+                categoryKey: 'bonjol',
+                categoryName: 'Tuanku Imam Bonjol',
+                question: 'Berapakah usia Tuanku Imam Bonjol saat wafat pada tanggal 6 November 1864 di Manado?',
+                options: ['a. 70 tahun', 'b. 80 tahun', 'c. 85 tahun', 'd. 92 tahun'],
+                correctIndex: 3, // d
+                explanation: 'Lahir tahun 1772 dan wafat pada 6 November 1864, Tuanku Imam Bonjol wafat di usia 92 tahun.'
+            },
+
+            // IV. Pangeran Diponegoro (19-24)
+            {
+                id: 19,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Nama kecil dari Pangeran Diponegoro yang lahir pada 11 November 1785 adalah...',
+                options: ['a. Peto Syarif', 'b. Raden Mas Ontowiryo', 'c. Thomas Matulessy', 'd. Sultan Malikusaid'],
+                correctIndex: 1, // b
+                explanation: 'Pangeran Diponegoro dilahirkan dengan nama Raden Mas Ontowiryo.'
+            },
+            {
+                id: 20,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Pangeran Diponegoro merupakan putera dari...',
+                options: ['a. Sultan Malikusaid', 'b. Sultan Hamengkubuwono III', 'c. Kyai Mojo', 'd. Sentot Alibasah'],
+                correctIndex: 1, // b
+                explanation: 'Diponegoro adalah putra tertua dari Sultan Hamengkubuwono III.'
+            },
+            {
+                id: 21,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Kediaman Pangeran Diponegoro yang diserang oleh Belanda pada tanggal 20 Juli 1825 terletak di...',
+                options: ['a. Selarong', 'b. Magelang', 'c. Tegalrejo', 'd. Pasaman'],
+                correctIndex: 2, // c
+                explanation: 'Penyerangan kediaman Pangeran Diponegoro di Tegalrejo memicu pecahnya Perang Jawa (1825-1830).'
+            },
+            {
+                id: 22,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Daerah berbukit-bukit yang dijadikan markas besar perjuangan Pangeran Diponegoro adalah...',
+                options: ['a. Selarong', 'b. Bonjol', 'c. Siri Sori', 'd. Meulaboh'],
+                correctIndex: 0, // a
+                explanation: 'Goa Selarong merupakan markas pertahanan perang gerilya Pangeran Diponegoro.'
+            },
+            {
+                id: 23,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Imbalan uang yang dijanjikan Belanda untuk menangkap Pangeran Diponegoro sebesar...',
+                options: ['a. 18.000 dollar', 'b. 25.000 peluru', 'c. 20.000 ringgit Belanda', 'd. 800 pucuk senjata'],
+                correctIndex: 2, // c
+                explanation: 'Pemerintah Belanda menjanjikan hadiah 20.000 ringgit bagi siapa saja yang dapat menangkap Diponegoro.'
+            },
+            {
+                id: 24,
+                categoryKey: 'diponegoro',
+                categoryName: 'Pangeran Diponegoro',
+                question: 'Kota tempat Pangeran Diponegoro ditangkap melalui siasat pura-pura mengajak berunding pada tahun 1830 adalah...',
+                options: ['a. Yogyakarta', 'b. Magelang', 'c. Manado', 'd. Ujung Pandang'],
+                correctIndex: 1, // b
+                explanation: 'Pangeran Diponegoro dijebak dan ditangkap di wisma Residen Magelang pada 28 Maret 1830.'
+            },
+
+            // V. Teuku Umar (25-30)
+            {
+                id: 25,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Teuku Umar yang lahir pada tahun 1854 di Meulaboh merupakan keturunan...',
+                options: ['a. Bugis', 'b. Minangkabau', 'c. Jawa', 'd. Ambon'],
+                correctIndex: 1, // b
+                explanation: 'Nenek moyang Teuku Umar merupakan keturunan Minangkabau yang merantau ke Aceh.'
+            },
+            {
+                id: 26,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Tokoh pejuang Aceh yang menjadi istri dari Teuku Umar adalah...',
+                options: ['a. Cut Nyak Dien', 'b. Kartini', 'c. Christina Martha Tiahahu', 'd. Rasuna Said'],
+                correctIndex: 0, // a
+                explanation: 'Teuku Umar menikah dengan pahlawan wanita Cut Nyak Dien pada tahun 1880.'
+            },
+            {
+                id: 27,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Markas besar Teuku Umar di Kampung Darat berhasil diduduki oleh Belanda pada tahun...',
+                options: ['a. 1878', 'b. 1883', 'c. 1896', 'd. 1899'],
+                correctIndex: 0, // a
+                explanation: 'Markas pertahanan Teuku Umar di Kampung Darat dikuasai Belanda pada tahun 1878.'
+            },
+            {
+                id: 28,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Berapa jumlah senjata yang berhasil dibawa Teuku Umar saat aksi perampasan pada tanggal 29 Maret 1896?',
+                options: ['a. 500 pucuk', 'b. 800 pucuk', 'c. 1.000 pucuk', 'd. 25.000 pucuk'],
+                correctIndex: 1, // b
+                explanation: 'Saat berpura-pura menyerah lalu membelot, Teuku Umar berhasil membawa lari 800 pucuk senjata.'
+            },
+            {
+                id: 29,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Siapakah panglima Belanda yang menggerakkan pasukannya karena marah atas tindakan Teuku Umar?',
+                options: ['a. Cornelis Speelman', 'b. Mayor Beetjes', 'c. Van Heutz', 'd. General de Kock'],
+                correctIndex: 2, // c
+                explanation: 'Jenderal Van Heutsz memimpin perburuan besar-besaran terhadap Teuku Umar.'
+            },
+            {
+                id: 30,
+                categoryKey: 'umar',
+                categoryName: 'Teuku Umar',
+                question: 'Teuku Umar gugur sebagai kusuma bangsa dalam pertempuran pada tanggal...',
+                options: ['a. 12 Juni 1670', 'b. 16 Desember 1817', 'c. 6 November 1864', 'd. 10 Februari 1899'],
+                correctIndex: 3, // d
+                explanation: 'Teuku Umar gugur dalam pertempuran mendadak di Meulaboh pada 10 Februari 1899.'
+            }
+        ];
+
+        /* ==========================================================================
+           2. SOUND SYNTHESIZER (WEB AUDIO API)
+           ========================================================================== */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.2); // A5
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+            playPop() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        /* ==========================================================================
+           3. APPLICATION GAME CONTROLLER
+           ========================================================================== */
+        class GameApplication {
+            constructor() {
+                this.currentMode = 'all'; // 'all' or category key
+                this.questions = [];
+                this.answeredCount = 0;
+                this.score = 0;
+                this.streak = 0;
+                this.maxStreak = 0;
+                this.boxStates = {}; // id -> { opened: bool, correct: bool }
+                this.activeQuestion = null;
+                this.audioOn = true;
+
+                this.initUI();
+            }
+
+            initUI() {
+                this.showHome();
+                this.renderStudyList(QUESTION_BANK);
+            }
+
+            /* --- Navigation Screens --- */
+            hideAllScreens() {
+                document.getElementById('screenHome').classList.add('hidden');
+                document.getElementById('screenMysteryGrid').classList.add('hidden');
+                document.getElementById('screenStudyMode').classList.add('hidden');
+                document.getElementById('screenResult').classList.add('hidden');
+                document.getElementById('topStatsBar').classList.add('hidden');
+                document.getElementById('topStatsBar').classList.remove('flex');
+            }
+
+            showHome() {
+                this.hideAllScreens();
+                document.getElementById('screenHome').classList.remove('hidden');
+            }
+
+            showStudyMode() {
+                this.hideAllScreens();
+                document.getElementById('screenStudyMode').classList.remove('hidden');
+            }
+
+            /* --- Start Game Modes --- */
+            startMysteryMode() {
+                this.currentMode = 'all';
+                this.questions = [...QUESTION_BANK];
+                this.resetGameData();
+                this.renderGrid('Misteri Box (Semua Soal)', 'Pilih kotak misteri acak untuk membuka 30 soal pahlawan!');
+            }
+
+            startCategoryMode(categoryKey) {
+                this.currentMode = categoryKey;
+                this.questions = QUESTION_BANK.filter(q => q.categoryKey === categoryKey);
+                this.resetGameData();
+                const catName = this.questions[0] ? this.questions[0].categoryName : 'Kategori';
+                this.renderGrid(`Kategori: ${catName}`, `Membuka 6 Kotak khusus materi ${catName}`);
+            }
+
+            resetGameData() {
+                this.answeredCount = 0;
+                this.score = 0;
+                this.streak = 0;
+                this.maxStreak = 0;
+                this.boxStates = {};
+                this.questions.forEach(q => {
+                    this.boxStates[q.id] = { opened: false, correct: false };
+                });
+                this.updateStatsBar();
+            }
+
+            resetCurrentGame() {
+                if (confirm('Apakah kamu yakin ingin mengulang permainan ini?')) {
+                    if (this.currentMode === 'all') {
+                        this.startMysteryMode();
+                    } else {
+                        this.startCategoryMode(this.currentMode);
+                    }
+                }
+            }
+
+            /* --- Render Grid of Mystery Boxes --- */
+            renderGrid(title, subtitle) {
+                this.hideAllScreens();
+                document.getElementById('screenMysteryGrid').classList.remove('hidden');
+                document.getElementById('topStatsBar').classList.remove('hidden');
+                document.getElementById('topStatsBar').classList.add('flex');
+
+                document.getElementById('gridTitle').textContent = title;
+                document.getElementById('gridSubtitle').textContent = subtitle;
+
+                const grid = document.getElementById('boxGridContainer');
+                grid.innerHTML = '';
+
+                this.questions.forEach((q, index) => {
+                    const boxState = this.boxStates[q.id];
+                    const boxCard = document.createElement('div');
+                    
+                    let bgClasses = 'bg-gradient-to-br from-slate-900 to-slate-800 border-amber-500/30 hover:border-amber-400 box-glow cursor-pointer';
+                    let content = `
+                        <div class="text-amber-400 text-3xl mb-2">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                        <span class="font-display text-amber-300 text-sm">BOX #${index + 1}</span>
+                        <span class="text-[10px] text-slate-400 mt-1 uppercase font-semibold tracking-wider">Misteri</span>
+                    `;
+
+                    if (boxState.opened) {
+                        if (boxState.correct) {
+                            bgClasses = 'bg-emerald-950/60 border-emerald-500/50 text-emerald-400 cursor-default';
+                            content = `
+                                <div class="text-emerald-400 text-3xl mb-2">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <span class="font-bold text-xs text-emerald-300">BENAR</span>
+                                <span class="text-[10px] text-emerald-500/80">+#${q.id}</span>
+                            `;
+                        } else {
+                            bgClasses = 'bg-rose-950/60 border-rose-500/50 text-rose-400 cursor-default';
+                            content = `
+                                <div class="text-rose-400 text-3xl mb-2">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </div>
+                                <span class="font-bold text-xs text-rose-300">SALAH</span>
+                                <span class="text-[10px] text-rose-500/80">+#${q.id}</span>
+                            `;
+                        }
+                    }
+
+                    boxCard.className = `mystery-box-card rounded-2xl p-5 border flex flex-col items-center justify-center text-center transition-all ${bgClasses}`;
+                    boxCard.innerHTML = content;
+
+                    if (!boxState.opened) {
+                        boxCard.onclick = () => {
+                            sfx.playPop();
+                            this.openQuestionModal(q, index + 1);
+                        };
+                    }
+
+                    grid.appendChild(boxCard);
+                });
+            }
+
+            /* --- Question Modal Functionality --- */
+            openQuestionModal(question, boxNumber) {
+                this.activeQuestion = question;
+                const modal = document.getElementById('questionModal');
+                const card = document.getElementById('modalCard');
+
+                document.getElementById('modalCategoryBadge').textContent = question.categoryName;
+                document.getElementById('modalBoxNumber').innerHTML = `<i class="fa-solid fa-box"></i> <span>Kotak #${boxNumber}</span>`;
+                document.getElementById('modalQuestionText').textContent = question.question;
+
+                // Render options
+                const optionsGrid = document.getElementById('modalOptionsGrid');
+                optionsGrid.innerHTML = '';
+
+                question.options.forEach((optText, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full p-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-left text-sm font-medium text-slate-200 transition-all flex items-center justify-between group';
+                    btn.innerHTML = `
+                        <span>${optText}</span>
+                        <i class="fa-regular fa-circle text-slate-500 group-hover:text-amber-400"></i>
+                    `;
+                    btn.onclick = () => this.handleAnswerSelection(optIdx, btn);
+                    optionsGrid.appendChild(btn);
+                });
+
+                // Hide feedback box & next button
+                document.getElementById('modalFeedbackBox').classList.add('hidden');
+                document.getElementById('modalNextBtn').classList.add('hidden');
+
+                // Show modal with transition
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    card.classList.remove('scale-95', 'opacity-0');
+                    card.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            handleAnswerSelection(selectedIndex, clickedBtn) {
+                const question = this.activeQuestion;
+                const isCorrect = selectedIndex === question.correctIndex;
+                const optionsGrid = document.getElementById('modalOptionsGrid');
+                const allOptionBtns = optionsGrid.querySelectorAll('button');
+
+                // Disable all option buttons
+                allOptionBtns.forEach(btn => btn.disabled = true);
+
+                // Update box state
+                this.boxStates[question.id].opened = true;
+                this.boxStates[question.id].correct = isCorrect;
+                this.answeredCount++;
+
+                // Score Calculation
+                if (isCorrect) {
+                    sfx.playCorrect();
+                    this.streak++;
+                    if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+                    const streakBonus = (this.streak > 1) ? (this.streak * 10) : 0;
+                    this.score += 100 + streakBonus;
+
+                    clickedBtn.className = 'w-full p-4 rounded-xl bg-emerald-950/80 border-2 border-emerald-500 text-left text-sm font-bold text-emerald-200 flex items-center justify-between';
+                    clickedBtn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+                } else {
+                    sfx.playWrong();
+                    this.streak = 0;
+
+                    clickedBtn.className = 'w-full p-4 rounded-xl bg-rose-950/80 border-2 border-rose-500 text-left text-sm font-bold text-rose-200 flex items-center justify-between';
+                    clickedBtn.querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-400 text-lg';
+
+                    // Highlight the correct answer
+                    const correctBtn = allOptionBtns[question.correctIndex];
+                    correctBtn.className = 'w-full p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-left text-sm font-medium text-emerald-300 flex items-center justify-between';
+                    correctBtn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-400';
+                }
+
+                // Show Feedback Box
+                const feedbackBox = document.getElementById('modalFeedbackBox');
+                const feedbackTitle = document.getElementById('feedbackTitle');
+                const feedbackIcon = document.getElementById('feedbackIcon');
+                const feedbackExp = document.getElementById('feedbackExplanation');
+
+                if (isCorrect) {
+                    feedbackBox.className = 'p-4 rounded-2xl mb-6 text-sm bg-emerald-950/50 border border-emerald-500/30 text-emerald-200';
+                    feedbackTitle.textContent = 'Jawaban Benar!';
+                    feedbackIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+                } else {
+                    feedbackBox.className = 'p-4 rounded-2xl mb-6 text-sm bg-rose-950/50 border border-rose-500/30 text-rose-200';
+                    feedbackTitle.textContent = 'Jawaban Kurang Tepat!';
+                    feedbackIcon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
+                }
+
+                feedbackExp.textContent = question.explanation;
+                feedbackBox.classList.remove('hidden');
+
+                // Show Next Button
+                document.getElementById('modalNextBtn').classList.remove('hidden');
+
+                this.updateStatsBar();
+            }
+
+            closeQuestionModal() {
+                const modal = document.getElementById('questionModal');
+                const card = document.getElementById('modalCard');
+
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-95', 'opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    // Refresh Grid Screen
+                    const title = document.getElementById('gridTitle').textContent;
+                    const subtitle = document.getElementById('gridSubtitle').textContent;
+                    this.renderGrid(title, subtitle);
+
+                    // Check if game completed
+                    if (this.answeredCount >= this.questions.length) {
+                        setTimeout(() => this.showResultScreen(), 500);
+                    }
+                }, 200);
+            }
+
+            /* --- Game Over Result Screen --- */
+            showResultScreen() {
+                this.hideAllScreens();
+                document.getElementById('screenResult').classList.remove('hidden');
+
+                const totalQ = this.questions.length;
+                let correctCount = 0;
+                Object.values(this.boxStates).forEach(st => {
+                    if (st.correct) correctCount++;
+                });
+
+                const accuracy = Math.round((correctCount / totalQ) * 100);
+
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
+                document.getElementById('finalStreak').textContent = this.maxStreak;
+
+                const feedback = document.getElementById('resultFeedback');
+                if (accuracy === 100) {
+                    feedback.textContent = 'Sempurna! Kamu adalah Mahaguru Sejarah Pahlawan Indonesia!';
+                } else if (accuracy >= 75) {
+                    feedback.textContent = 'Luar Biasa! Pengetahuan sejarahmu sangat matang!';
+                } else if (accuracy >= 50) {
+                    feedback.textContent = 'Bagus! Pelajari lagi beberapa soal untuk hasil yang lebih tinggi.';
+                } else {
+                    feedback.textContent = 'Tetap Semangat! Cobalah membaca Daftar Soal lalu ulangi permainan.';
+                }
+            }
+
+            /* --- Update Top Stats Bar --- */
+            updateStatsBar() {
+                document.getElementById('statScore').textContent = this.score;
+                document.getElementById('statAnswered').textContent = `${this.answeredCount}/${this.questions.length}`;
+                document.getElementById('statStreak').textContent = this.streak;
+            }
+
+            /* --- Study Mode Rendering & Search Filter --- */
+            renderStudyList(items) {
+                const container = document.getElementById('studyListContainer');
+                container.innerHTML = '';
+
+                if (items.length === 0) {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-900 rounded-2xl">Tidak ada soal yang cocok dengan pencarianmu.</div>`;
+                    return;
+                }
+
+                items.forEach((item, index) => {
+                    const correctChoice = item.options[item.correctIndex];
+                    const card = document.createElement('div');
+                    card.className = 'p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-3';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                ${item.categoryName}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-500">Soal #${item.id}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-100 text-base leading-snug">${item.id}. ${item.question}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 pt-1">
+                            ${item.options.map((opt, i) => `
+                                <div class="p-2.5 rounded-lg ${i === item.correctIndex ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-bold' : 'bg-slate-950/50 border border-slate-800/60'}">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                            <span class="font-bold text-emerald-400">Pembahasan:</span> ${item.explanation}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            filterStudyList() {
+                const searchText = document.getElementById('studySearchInput').value.toLowerCase();
+                const selectedCat = document.getElementById('studyCategoryFilter').value;
+
+                const filtered = QUESTION_BANK.filter(q => {
+                    const matchesCat = (selectedCat === 'all') || (q.categoryKey === selectedCat);
+                    const matchesSearch = q.question.toLowerCase().includes(searchText) || 
+                                          q.explanation.toLowerCase().includes(searchText) ||
+                                          q.options.some(opt => opt.toLowerCase().includes(searchText));
+                    return matchesCat && matchesSearch;
+                });
+
+                this.renderStudyList(filtered);
+            }
+
+            /* --- Audio Toggle --- */
+            toggleAudio() {
+                this.audioOn = !this.audioOn;
+                sfx.enabled = this.audioOn;
+                const btn = document.getElementById('audioBtn');
+                btn.innerHTML = this.audioOn ? '<i class="fa-solid fa-volume-high text-sm"></i>' : '<i class="fa-solid fa-volume-xmark text-sm text-slate-500"></i>';
+            }
+        }
+
+        let gameApp;
+        window.addEventListener('DOMContentLoaded', () => {
+            gameApp = new GameApplication();
+        });
+    </script>
+</body>
+</html>
